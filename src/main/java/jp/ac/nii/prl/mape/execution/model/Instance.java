@@ -17,20 +17,27 @@ public class Instance {
 	private Long id;
 	
 	@NotEmpty
-	private String ami;
+	private String instId;
 	
+	@NotEmpty
+	private String ami;
+
 	@NotEmpty
 	private String instType;
-	
+
 	@NotEmpty
 	private String securityGroupRef;
-
+	
 	public String getAmi() {
 		return ami;
 	}
-
+	
 	public Long getId() {
 		return id;
+	}
+
+	public String getInstId() {
+		return instId;
 	}
 
 	public String getInstType() {
@@ -47,6 +54,10 @@ public class Instance {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public void setInstId(String instId) {
+		this.instId = instId;
 	}
 
 	public void setInstType(String instType) {
