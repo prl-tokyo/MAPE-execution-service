@@ -5,8 +5,10 @@ import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class View {
@@ -16,8 +18,12 @@ public class View {
 	@Id
 	private Long id;
 	
+	@OneToMany(mappedBy="view")
+	@JsonManagedReference	
 	private Collection<Instance> additions;
 	
+	@OneToMany(mappedBy="view")
+	@JsonManagedReference
 	private Collection<Instance> terminations;
 
 	public Collection<Instance> getAdditions() {
