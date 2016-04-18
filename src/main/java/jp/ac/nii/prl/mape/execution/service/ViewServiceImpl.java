@@ -33,6 +33,8 @@ public class ViewServiceImpl implements ViewService {
 		for (Instance term:view.getTerminations()) {
 			termIds.add(term.getInstId());
 		}
+		if (termIds.isEmpty())
+			return true;
 		return terminateInstances(termIds);
 	}
 	
