@@ -5,5 +5,5 @@
   - name: Terminate instances
     ec2:
       state: 'absent'
-      instance_id: '{{ instid }}'
+      instance_ids: '{{ instid }}'
       region: ap-northeast-1
