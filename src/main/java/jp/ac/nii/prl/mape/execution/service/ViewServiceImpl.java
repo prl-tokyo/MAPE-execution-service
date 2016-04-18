@@ -63,7 +63,7 @@ public class ViewServiceImpl implements ViewService {
 		}
 		String joined = sb.toString();
 		
-		String extraVars = String.format("\"instid:[%s]\"", joined);
+		String extraVars = String.format("\"instid=[%s]\"", joined);
 		
 		// create Ansible command
 		String cmd = String.format("%s -i %s %s --extra-vars %s", 
