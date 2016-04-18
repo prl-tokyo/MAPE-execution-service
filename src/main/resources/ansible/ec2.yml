@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+  - name: Provision instances
+    ec2:
+      instance_type: {{ insttype }}
+      instance_tags: {"Category":"bxcloud"}
+      image: {{ instami }}
+      count: {{ instcount }}
+      group_id: {{ instsg }}
+      region: ap-northeast-1
