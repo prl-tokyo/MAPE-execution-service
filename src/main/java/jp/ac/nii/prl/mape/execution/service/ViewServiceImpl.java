@@ -1,5 +1,8 @@
 package jp.ac.nii.prl.mape.execution.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,14 +42,38 @@ public class ViewServiceImpl implements ViewService {
 	}
 	
 	private boolean createInstance(Instance instance) {
-		String cmd = String.format("%s %s --extra-vars='{\"insttype\":\"%s\", \"instcount\":1, \"instami\":\"%s\", \"instsg\":\"%s\"}'", 
-				ansibleProperties.getExecutable(),
-				ansibleProperties.getCreate(),
+		
+		// create Ansible extra variables
+		String extraVars = String.format("--extra-vars={\"insttype\":\"%s\",\"instcount\":\"1\",\"instami\":\"%s\",\"instsg\":\"%s\"}", 
 				instance.getInstType(),
-				instance.getAmi(),
+				instance.getAmi(), 
 				instance.getSecurityGroupRef());
-		System.out.println(cmd);
-		return true;
+		
+		System.out.println(extraVars);
+		
+		// execute Ansible
+		Process p = null;
+		try {
+			ProcessBuilder pb = new ProcessBuilder(ansibleProperties.getExecutable(), 
+					ansibleProperties.getCreate(), 
+					extraVars);
+			p = pb.start();
+			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = r.readLine()) != null)
+				System.out.println(line);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		try {
+			p.waitFor();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;				
 	}
 	
 	private boolean terminateInstances(Collection<String> instIds) {
@@ -56,22 +83,42 @@ public class ViewServiceImpl implements ViewService {
 		Iterator<String> iter = instIds.iterator();
 		StringBuilder sb = new StringBuilder();
 		if (iter.hasNext()) {
-		  sb.append("'" + iter.next() + "'");
+		  sb.append("\"" + iter.next() + "\"");
 		  while (iter.hasNext()) {
-		    sb.append(separator).append("'" + iter.next() + "'");
+		    sb.append(separator).append("\"" + iter.next() + "\"");
 		  }
 		}
 		String joined = sb.toString();
 		
-		String extraVars = String.format("\"instid=[%s]\"", joined);
+		// create Ansible extra variables
+		String extraVars = String.format("--extra-vars={\"instid\":[%s]}", joined);
 		
-		// create Ansible command
-		String cmd = String.format("%s -i %s %s --extra-vars %s", 
-				ansibleProperties.getExecutable(), 
-				ansibleProperties.getInventory(),
-				ansibleProperties.getTerminate(),
-				extraVars);
-		System.out.println(cmd);
+		// execute Ansible
+		Process p = null;
+		try {
+			ProcessBuilder pb = new ProcessBuilder(ansibleProperties.getExecutable(),
+					"-i", ansibleProperties.getInventory(),
+					ansibleProperties.getTerminate(),
+					extraVars);
+			p = pb.start();
+			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = r.readLine()) != null)
+				System.out.println(line);
+			BufferedReader re = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			String linee = null;
+			while ((linee = re.readLine()) != null)
+				System.out.println(linee);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		try {
+			p.waitFor();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return false;
+		}
 		return true;
 	}
 }
