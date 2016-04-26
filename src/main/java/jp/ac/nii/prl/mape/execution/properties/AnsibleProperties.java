@@ -15,7 +15,7 @@ public class AnsibleProperties {
 	
 	private String terminate;
 	
-	private String tagName;
+	private String tagKey;
 	
 	private String tagValue;
 
@@ -31,8 +31,8 @@ public class AnsibleProperties {
 		return inventory;
 	}
 
-	public String getTagName() {
-		return tagName;
+	public String getTagKey() {
+		return tagKey;
 	}
 
 	public String getTagValue() {
@@ -55,8 +55,8 @@ public class AnsibleProperties {
 		this.inventory = inventory;
 	}
 
-	public void setTagName(String tagName) {
-		this.tagName = tagName;
+	public void setTagKey(String tagKey) {
+		this.tagKey = tagKey;
 	}
 
 	public void setTagValue(String tagValue) {
