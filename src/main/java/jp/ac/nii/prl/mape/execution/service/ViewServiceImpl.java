@@ -44,10 +44,12 @@ public class ViewServiceImpl implements ViewService {
 	private boolean createInstance(Instance instance) {
 		
 		// create Ansible extra variables
-		String extraVars = String.format("--extra-vars={\"insttype\":\"%s\",\"instcount\":\"1\",\"instami\":\"%s\",\"instsg\":\"%s\"}", 
+		String extraVars = String.format("--extra-vars={\"insttype\":\"%s\",\"instcount\":\"1\",\"instami\":\"%s\",\"instsg\":\"%s\",\"tagKey\":\"%s\",\"tagVal\":\"%s\"}", 
 				instance.getInstType(),
 				instance.getAmi(), 
-				instance.getSecurityGroupRef());
+				instance.getSecurityGroupRef(),
+				ansibleProperties.getTagKey(),
+				ansibleProperties.getTagValue());
 		
 		System.out.println(extraVars);
 		

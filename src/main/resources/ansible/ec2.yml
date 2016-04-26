@@ -5,7 +5,7 @@
   - name: Provision instances
     ec2:
       instance_type: "{{ insttype }}"
-      instance_tags: {"Category":"bxcloud"}
+      instance_tags: {"{{ tagKey }}":"{{ tagVal }}"}
       image: "{{ instami }}"
       count: "{{ instcount }}"
       group_id: "{{ instsg }}"
