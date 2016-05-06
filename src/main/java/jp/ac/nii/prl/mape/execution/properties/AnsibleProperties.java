@@ -1,5 +1,8 @@
 package jp.ac.nii.prl.mape.execution.properties;
 
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -7,16 +10,28 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("app.ansible")
 public class AnsibleProperties {
 
+	@NotEmpty
+	@Valid
 	private String executable;
 	
+	@NotEmpty
+	@Valid
 	private String inventory;
 	
+	@NotEmpty
+	@Valid
 	private String create;
 	
+	@NotEmpty
+	@Valid
 	private String terminate;
 	
+	@NotEmpty
+	@Valid
 	private String tagKey;
 	
+	@NotEmpty
+	@Valid
 	private String tagValue;
 
 	public String getCreate() {
