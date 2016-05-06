@@ -1,5 +1,7 @@
 package jp.ac.nii.prl.mape.execution.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ public class ExecutionController {
 	
 	private final ViewService viewService;
 	
+	private static final Logger logger = LoggerFactory.getLogger(ExecutionController.class);
+	
 	@Autowired
 	public ExecutionController(ViewService viewService) {
 		this.viewService = viewService;
@@ -29,7 +33,11 @@ public class ExecutionController {
 	@RequestMapping(method=RequestMethod.POST)
 	public ResponseEntity<?> execute(@RequestBody View view) {
 		
+		logger.info("Executing changes");
+		
 		viewService.execute(view);
+		
+		logger.info("Changes done");
 		
 		// create response
 		HttpHeaders httpHeaders = new HttpHeaders();
