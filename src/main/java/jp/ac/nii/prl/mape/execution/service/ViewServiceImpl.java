@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jp.ac.nii.prl.mape.execution.AnsibleException;
 import jp.ac.nii.prl.mape.execution.model.Instance;
 import jp.ac.nii.prl.mape.execution.model.View;
 import jp.ac.nii.prl.mape.execution.properties.AnsibleProperties;
@@ -18,6 +21,8 @@ import jp.ac.nii.prl.mape.execution.properties.AnsibleProperties;
 public class ViewServiceImpl implements ViewService {
 
 	private final AnsibleProperties ansibleProperties;
+	
+	private final Logger logger = LoggerFactory.getLogger(ViewServiceImpl.class);
 	
 	@Autowired
 	public ViewServiceImpl(AnsibleProperties ansibleProperties) {
@@ -28,20 +33,35 @@ public class ViewServiceImpl implements ViewService {
 	 * @see jp.ac.nii.prl.mape.execution.service.ViewService#execute(jp.ac.nii.prl.mape.execution.model.View)
 	 */
 	@Override
-	public boolean execute(View view) {
+	public void execute(View view) throws AnsibleException {
+		logger.debug("Creating instances");
+		
+		if ( view.getAdditions().isEmpty())
+			logger.debug("No instances to create");
+		
 		for (Instance create:view.getAdditions()) {
 			createInstance(create);
 		}
+		if (!view.getAdditions().isEmpty())
+			logger.debug("Instances created");
+		
 		Collection<String> termIds = new ArrayList<>();
 		for (Instance term:view.getTerminations()) {
 			termIds.add(term.getInstId());
 		}
-		if (termIds.isEmpty())
-			return true;
-		return terminateInstances(termIds);
+		if (termIds.isEmpty()) {
+			logger.debug("No instances to terminate");
+			return;
+		}
+		
+		logger.debug("Terminating instances");
+		
+		terminateInstances(termIds);
+		
+		logger.debug("Instances terminated");
 	}
 	
-	private boolean createInstance(Instance instance) {
+	private void createInstance(Instance instance) throws AnsibleException {
 		
 		// create Ansible extra variables
 		String extraVars = String.format("--extra-vars={\"insttype\":\"%s\",\"instcount\":\"1\",\"instami\":\"%s\",\"instsg\":\"%s\",\"tagKey\":\"%s\",\"tagVal\":\"%s\"}", 
@@ -66,19 +86,22 @@ public class ViewServiceImpl implements ViewService {
 				System.out.println(line);
 
 		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+			logger.error(e.getMessage());
+			throw new AnsibleException("IO exception", e);
 		}
 		try {
 			p.waitFor();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
+			logger.error(e.getMessage());
+			throw new AnsibleException("InterruptedException", e);
 		}
-		return true;				
+		if (p.exitValue() != 0) {
+			logger.error(String.format("Ansible exit value is %s", p.exitValue()));
+			throw new AnsibleException(String.format("Ansible exit value is %s", p.exitValue()));
+		}
 	}
 	
-	private boolean terminateInstances(Collection<String> instIds) {
+	private void terminateInstances(Collection<String> instIds) throws AnsibleException {
 		String separator = ",";
 		
 		// join the list of IDs into a single string with separator
@@ -112,15 +135,18 @@ public class ViewServiceImpl implements ViewService {
 			while ((linee = re.readLine()) != null)
 				System.out.println(linee);
 		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+			logger.error(e.getMessage());
+			throw new AnsibleException("IO Exception", e);
 		}
 		try {
 			p.waitFor();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return false;
+			logger.error(e.getMessage());
+			throw new AnsibleException("InterruptedException", e);
 		}
-		return true;
+		if (p.exitValue() != 0) {
+			logger.error(String.format("Ansible exit value is %s", p.exitValue()));
+			throw new AnsibleException(String.format("Ansible exit value is %s", p.exitValue()));
+		}
 	}
 }

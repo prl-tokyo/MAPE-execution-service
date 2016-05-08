@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import jp.ac.nii.prl.mape.execution.AnsibleException;
+import jp.ac.nii.prl.mape.execution.ExecutionException;
 import jp.ac.nii.prl.mape.execution.model.View;
 import jp.ac.nii.prl.mape.execution.service.ViewService;
 
@@ -31,11 +33,16 @@ public class ExecutionController {
 	}
 	
 	@RequestMapping(method=RequestMethod.POST)
-	public ResponseEntity<?> execute(@RequestBody View view) {
+	public ResponseEntity<?> execute(@RequestBody View view) throws ExecutionException {
 		
 		logger.info("Executing changes");
 		
-		viewService.execute(view);
+		try {
+			viewService.execute(view);
+		} catch (AnsibleException e) {
+			logger.error(e.getMessage());
+			throw new ExecutionException("Could not execute plan");
+		}
 		
 		logger.info("Changes done");
 		
