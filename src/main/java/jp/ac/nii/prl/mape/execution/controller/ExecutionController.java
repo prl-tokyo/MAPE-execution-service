@@ -48,10 +48,7 @@ public class ExecutionController {
 		
 		// create response
 		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setLocation(ServletUriComponentsBuilder
-				.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(view.getId()).toUri());
-		return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
+		return new ResponseEntity<>(null, httpHeaders, HttpStatus.OK);
 	}
 
 }
